@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Whiteboard + Notes Maker</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      padding: 10px;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+      flex: 1;
+      text-align: center;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    button {
+      background: #334155;
+      border: none;
+      color: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #475569;
+    }
+    input[type=color] {
+      width: 36px;
+      height: 32px;
+      border: none;
+      cursor: pointer;
+    }
+    input[type=range] {
+      width: 100px;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      margin: 0;
+    }
+    .board {
+      flex: 3;
+      position: relative;
+      background: #fff;
+      margin: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      min-height: 300px;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+    .notes {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #1e293b;
+      margin: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      min-height: 100px;
+    }
+    .notes header {
+      background: #334155;
+      color: #f1f5f9;
+      font-size: 15px;
+      padding: 8px;
+      text-align: center;
+    }
+    .notes textarea {
+      flex: 1;
+      border: none;
+      outline: none;
+      resize: none;
+      padding: 10px;
+      font-size: 14px;
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+    @media (max-width:768px) {
+      main {
+        flex-direction: column;
+      }
+      .board {
+        flex: none;
+        height: 60vh;
+        margin: 8px 8px 4px 8px;
+      }
+      .notes {
+        flex: none;
+        height: 35vh;
+        margin: 4px 8px 8px 8px;
+      }
+    }
+    section.description {
+      background: #1e293b;
+      color: #f1f5f9;
+      padding: 20px;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 20px auto;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    @media(max-width:768px){
+      section.description {
+        padding: 15px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Whiteboard + Notes Maker</h1>
+    <div class="toolbar">
+      <input type="color" id="colorPicker" value="#000000">
+      <input type="range" id="sizePicker" min="1" max="20" value="3">
+      <button id="clearBtn">Clear</button>
+      <button id="saveBtn">Save PNG</button>
+    </div>
+  </header>
+  <main>
+    <div class="board">
+      <canvas id="board"></canvas>
+    </div>
+    <div class="notes">
+      <header>Notes</header>
+      <textarea id="noteArea" placeholder="Write your notes here..."></textarea>
+    </div>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+    const colorPicker = document.getElementById('colorPicker');
+    const sizePicker = document.getElementById('sizePicker');
+    const clearBtn = document.getElementById('clearBtn');
+    const saveBtn = document.getElementById('saveBtn');
+
+    let drawing = false;
+    let color = colorPicker.value;
+    let size = sizePicker.value;
+
+    function resizeCanvas(){
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    canvas.addEventListener('mousedown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+    canvas.addEventListener('mousemove', e => {
+      if(!drawing) return;
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = size;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    });
+    canvas.addEventListener('mouseup', ()=> drawing=false);
+    canvas.addEventListener('mouseleave', ()=> drawing=false);
+
+    colorPicker.addEventListener('input', e => color = e.target.value);
+    sizePicker.addEventListener('input', e => size = e.target.value);
+
+    clearBtn.addEventListener('click', ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); });
+    saveBtn.addEventListener('click', ()=>{
+      const link = document.createElement('a');
+      link.download = 'whiteboard.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  </script>
+
+  <!-- Full-width description section for content -->
+  <section class="description">
+   
+    <h2>Whiteboard + Notes Maker – Description & Usage</h2>
+<p>
+The Whiteboard + Notes Maker is an interactive digital tool designed for students, educators, and professionals who want to combine drawing and note-taking in a single workspace. Built entirely with HTML, CSS, and JavaScript, this tool runs directly in the browser without requiring any installation or backend, making it fast, lightweight, and accessible on all devices.
+</p>
+<br>
+<h2>How to Use</h2>
+<p>
+1 Toolbar Controls: At the top, you can select the pen color, adjust brush size, clear the whiteboard, or save your drawing as a PNG image.
+</p>
+<p>2 Drawing on Whiteboard: Click and drag your mouse (or finger on touch screens) on the whiteboard area to create sketches, flowcharts, or diagrams.</p>
+<p>3  Notes Section: Below the whiteboard (on mobile) or beside it (on desktop), you can type your notes, summaries, or explanations related to your drawings.</p>
+<p>4 Saving Work: Use the Save PNG button to export the whiteboard as an image, and copy/paste your notes if needed.</p>
+<p>5 Clearing Work: Press Clear to start fresh without refreshing the page.</p>
+<br>
+<h2>Benefits</h2>
+<p>1 All-in-One Workspace: Draw and write notes simultaneously without switching apps.</p>
+<p>2 Responsive Design: Works seamlessly on laptops, tablets, and phones. On mobile, the layout stacks with whiteboard on top and notes below.</p>
+<p>3 Easy Sharing & Storage: Save drawings as PNG and copy notes to share with peers or for study purposes</p>
+<p>4 Enhanced Learning: Great for brainstorming, planning projects, solving problems visually, and taking structured notes.</p>
+<p>5 No Installation Needed: Runs in any modern browser, making it instantly accessible for BCA students and anyone who wants a simple, efficient digital workspace.</p>
+<br>
+<p>
+    Whether it’s preparing diagrams, mind maps, flowcharts, or study notes, the Whiteboard + Notes Maker helps users organize ideas visually while keeping textual notes handy. It is a versatile and practical tool for learning, teaching, and project planning.
+</p>
+
+</section>
+
+</body>
+</html>
